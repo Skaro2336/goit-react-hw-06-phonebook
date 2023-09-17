@@ -12,6 +12,8 @@ import {
   Label,
   ErrorText,
 } from './ContactFormStyles';
+import { useDispatch } from 'react-redux';
+import { addContact } from 'redux/contactSlice';
 
 const phonebookSchema = Yup.object().shape({
   name: Yup.string()
@@ -30,17 +32,31 @@ const phonebookSchema = Yup.object().shape({
     .required('Phone number is required'),
 });
 
-function ContactForm({ onAddContact }) {
+function ContactForm({ contacts }) {
   const initialValues = {
     name: '',
     phone: '',
   };
 
+  const dispatch = useDispatch();
+
+  const isContactDuplicate = (name, phone) => {
+    return contacts.some(
+      contact => contact.name === name || contact.phone === phone
+    );
+  };
+
   const handleSubmit = (values, actions) => {
     const { name, phone } = values;
 
+    const isDuplicateContact = isContactDuplicate(name, phone);
+    if (isDuplicateContact) {
+      alert('Contact with the same name or phone number already exists!');
+      return;
+    }
+
     const newContact = { id: nanoid(), name, phone };
-    onAddContact(newContact);
+    dispatch(addContact(newContact));
     actions.resetForm();
   };
 
@@ -73,7 +89,7 @@ function ContactForm({ onAddContact }) {
 }
 
 ContactForm.propTypes = {
-  onSubmit: PropTypes.func,
+  contacts: PropTypes.array.isRequired,
 };
 
 export default ContactForm;

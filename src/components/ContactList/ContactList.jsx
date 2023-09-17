@@ -1,47 +1,28 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import {
-  ContactListWrapper,
-  ContactListItem,
-  ContactIcon,
-  ContactDetails,
-  ContactName,
-  ContactPhone,
-  DeleteButton,
-} from './ContactListStyles';
-import { RiContactsLine } from 'react-icons/ri';
-import { AiFillDelete } from 'react-icons/ai';
+import { ContactListWrapper } from './ContactListStyles';
+import { useSelector } from 'react-redux';
+import { getContacts, getFilter } from 'redux/selectors';
+import ContactItem from 'components/ContactListItem';
 
-function ContactList({ contacts, onDeleteContact }) {
+function ContactList() {
+  const filter = useSelector(getFilter);
+  const contacts = useSelector(getContacts);
+
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  if (!filteredContacts?.length) {
+    return <p>No contacts found.</p>;
+  }
+
   return (
     <ContactListWrapper>
-      {contacts.map(contact => (
-        <ContactListItem key={contact.id}>
-          <ContactIcon>
-            <RiContactsLine />
-          </ContactIcon>
-          <ContactDetails>
-            <ContactName>{contact.name}</ContactName>
-            <ContactPhone>{contact.phone}</ContactPhone>
-          </ContactDetails>
-          <DeleteButton onClick={() => onDeleteContact(contact.id)}>
-            <AiFillDelete />
-          </DeleteButton>
-        </ContactListItem>
+      {filteredContacts.map(({ id, name, phone }) => (
+        <ContactItem key={id} id={id} name={name} phone={phone} />
       ))}
     </ContactListWrapper>
   );
 }
-
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      phone: PropTypes.string,
-    })
-  ),
-  onDeleteContact: PropTypes.func.isRequired,
-};
 
 export default ContactList;
