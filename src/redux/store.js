@@ -6,21 +6,14 @@ import rootReducer from './reducer';
 const persistConfig = {
   key: 'phonebook',
   storage,
-  // blacklist: ['filterSlice'],
+  blacklist: ['filter'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    contacts: persistedReducer,
-  },
+  reducer: persistedReducer,
   middleware: getDefaultMiddleware({ serializableCheck: false }),
 });
-
-// export const store = configureStore({
-//   reducer: persistedReducer,
-//   middleware: getDefaultMiddleware({ serializableCheck: false }),
-// });
 
 export const persistor = persistStore(store);
